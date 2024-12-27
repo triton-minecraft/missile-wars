@@ -15,6 +15,8 @@ repositories {
 
 dependencies {
     implementation("net.minestom:minestom-snapshots:9803f2bfe3")
+    implementation("dev.hollowcube:schem:1.3.1")
+
     implementation("dev.kyriji:triton-stom:0.0.0")
 }
 

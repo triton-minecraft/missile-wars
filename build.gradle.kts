@@ -10,10 +10,12 @@ version = ""
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
     implementation("net.minestom:minestom-snapshots:9803f2bfe3")
+    implementation("dev.kyriji:triton-stom:0.0.0")
 }
 
 java {

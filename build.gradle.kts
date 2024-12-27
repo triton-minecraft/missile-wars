@@ -13,13 +13,27 @@ repositories {
 }
 
 dependencies {
+    implementation("net.minestom:minestom-snapshots:9803f2bfe3")
 }
 
-tasks.jar {
-    manifest {
-        attributes(
-            "Main-Class" to "dev.kyriji.missilewars.MissileWars"
-        )
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks {
+    jar {
+        manifest {
+            attributes["Main-Class"] = "dev.kyriji.missilewars.MissileWars"
+        }
+    }
+    build {
+        dependsOn(shadowJar)
+    }
+    shadowJar {
+        mergeServiceFiles()
+        archiveClassifier.set("")
     }
 }
 

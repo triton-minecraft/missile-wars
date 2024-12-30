@@ -1,6 +1,7 @@
 package dev.kyriji.missilewars.minecraft.block.update;
 
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.event.player.PlayerBlockBreakEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 
 public class BlockUpdateDetector {
@@ -8,6 +9,9 @@ public class BlockUpdateDetector {
 
 	private BlockUpdateDetector() {
 		MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockPlaceEvent.class, event -> {
+			BlockUpdateHandler.get().scheduleUpdate(event.getInstance(), event.getBlockPosition());
+		});
+		MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockBreakEvent.class, event -> {
 			BlockUpdateHandler.get().scheduleUpdate(event.getInstance(), event.getBlockPosition());
 		});
 	}

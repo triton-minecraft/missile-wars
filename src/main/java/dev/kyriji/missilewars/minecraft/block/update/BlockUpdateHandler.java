@@ -1,5 +1,6 @@
 package dev.kyriji.missilewars.minecraft.block.update;
 
+import dev.kyriji.missilewars.minecraft.util.LocationUtils;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.event.instance.InstanceTickEvent;
@@ -38,12 +39,7 @@ public class BlockUpdateHandler {
 		instanceBlockUpdateMap.putIfAbsent(instance, new HashSet<>());
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
 		blocksToUpdate.add(blockVec);
-		blocksToUpdate.add(blockVec.add(1, 0, 0));
-		blocksToUpdate.add(blockVec.add(-1, 0, 0));
-		blocksToUpdate.add(blockVec.add(0, 1, 0));
-		blocksToUpdate.add(blockVec.add(0, -1, 0));
-		blocksToUpdate.add(blockVec.add(0, 0, 1));
-		blocksToUpdate.add(blockVec.add(0, 0, -1));
+		blocksToUpdate.addAll(LocationUtils.getNeighborBlocks(blockVec));
 	}
 
 	public static void init() {

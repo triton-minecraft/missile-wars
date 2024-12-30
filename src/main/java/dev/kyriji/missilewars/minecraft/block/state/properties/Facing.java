@@ -33,7 +33,12 @@ public enum Facing implements Property<Facing> {
 	}
 
 	public BlockVec offset(BlockVec blockVec) {
-		return blockVec.add(x, y, z);
+		return offset(blockVec, false);
+	}
+
+	public BlockVec offset(BlockVec blockVec, boolean reverse) {
+		int multiplier = reverse ? -1 : 1;
+		return blockVec.add(x * multiplier, y * multiplier, z * multiplier);
 	}
 
 	public int getX() {

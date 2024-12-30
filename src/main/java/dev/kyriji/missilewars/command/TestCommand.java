@@ -1,4 +1,4 @@
-package dev.kyriji.missilewars.commands;
+package dev.kyriji.missilewars.command;
 
 import dev.kyriji.missilewars.MissileWars;
 import net.minestom.server.command.builder.Command;

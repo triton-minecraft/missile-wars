@@ -1,16 +1,25 @@
 package dev.kyriji.missilewars.minecraft.block.state.properties;
 
 import dev.kyriji.missilewars.minecraft.block.state.Property;
+import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.block.BlockFace;
 
 public enum Facing implements Property<Facing> {
-	NORTH,
-	EAST,
-	SOUTH,
-	WEST,
-	UP,
-	DOWN
+	NORTH(0, 0, -1),
+	EAST(1, 0, 0),
+	SOUTH(0, 0, 1),
+	WEST(-1, 0, 0),
+	UP(0, 1, 0),
+	DOWN(0, -1, 0)
 	;
+
+	private final int x, y, z;
+
+	Facing(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 
 	public Facing opposite() {
 		return switch (this) {
@@ -23,6 +32,22 @@ public enum Facing implements Property<Facing> {
 		};
 	}
 
+	public BlockVec offset(BlockVec blockVec) {
+		return blockVec.add(x, y, z);
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public int getZ() {
+		return z;
+	}
+
 	@Override
 	public String getKey() {
 		return "facing";
@@ -31,6 +56,10 @@ public enum Facing implements Property<Facing> {
 	@Override
 	public String getValue() {
 		return name().toLowerCase();
+	}
+
+	public static Facing fromString(String value) {
+		return valueOf(value.toUpperCase());
 	}
 
 	public static Facing fromYawAndPitch(float yaw, float pitch) {

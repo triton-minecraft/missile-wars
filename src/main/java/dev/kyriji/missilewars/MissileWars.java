@@ -12,21 +12,23 @@ import dev.kyriji.tritonstom.worlds.time.TimeStrategy;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.instance.block.Block;
 
 public class MissileWars {
 	public static TritonWorld world;
 	public static TritonWorld world2;
 
 	public static void main(String[] args) {
+		// System.setProperty("minestom.tps", "1");
 		MinecraftServer server = MinecraftServer.init();
 
 		world = WorldManager.get().buildWorld("world")
 				.timeKeeper(TimeManager.get().buildTimeKeeper().strategy(TimeStrategy.ALWAYS_NOON))
 				.build();
 
-		world2 = WorldManager.get().buildWorld("world2")
-				.timeKeeper(TimeManager.get().buildTimeKeeper().strategy(TimeStrategy.ALWAYS_NOON))
-				.build();
+		// world2 = WorldManager.get().buildWorld("world2")
+		// 		.timeKeeper(TimeManager.get().buildTimeKeeper().strategy(TimeStrategy.ALWAYS_NOON))
+		// 		.build();
 
 		TritonStom.builder(server)
 				.defaultGameMode(GameMode.CREATIVE)
@@ -40,5 +42,8 @@ public class MissileWars {
 		server.start("0.0.0.0", 25565);
 
 		Minecraft.init();
+
+		System.out.println(Block.MOVING_PISTON.properties());
+		System.out.println(Block.PISTON_HEAD.properties());
 	}
 }

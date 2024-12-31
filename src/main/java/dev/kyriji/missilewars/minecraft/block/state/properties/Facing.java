@@ -125,4 +125,15 @@ public enum Facing implements Property<Facing> {
 			case BOTTOM -> DOWN;
 		};
 	}
+
+	public static Facing fromDirection(Direction direction) {
+		return switch (direction) {
+			case NORTH -> NORTH;
+			case EAST -> EAST;
+			case SOUTH -> SOUTH;
+			case WEST -> WEST;
+			case UP -> UP;
+			case DOWN -> DOWN;
+		};
+	}
 }

@@ -5,6 +5,7 @@ import dev.kyriji.missilewars.minecraft.block.util.BlockUtils;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.event.instance.InstanceTickEvent;
+import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
@@ -18,22 +19,33 @@ public class BlockUpdateHandler {
 
 	private static final Map<Instance, Set<BlockVec>> instanceBlockUpdateMap = new HashMap<>();
 
+	public static long lastStoneTick = Integer.MAX_VALUE;
+
 	private BlockUpdateHandler() {
 		MinecraftServer.getGlobalEventHandler().addListener(InstanceTickEvent.class, event -> {
 			Instance instance = event.getInstance();
+			if (lastStoneTick < 15) {
+				System.out.println("------------------------------");
+				System.out.println("ticking: " + lastStoneTick);
+			}
 			tick(instance);
+			lastStoneTick++;
+		});
+
+		MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockPlaceEvent.class, event -> {
+			if (event.getBlock().defaultState() == Block.STONE) lastStoneTick = 1;
 		});
 	}
 
 	public void tick(Instance instance) {
+		PistonManager.get().handleScheduledMoves(instance);
+
 		instanceBlockUpdateMap.putIfAbsent(instance, new HashSet<>());
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
 		Set<BlockVec> blocksToUpdateThisTick = new HashSet<>(blocksToUpdate);
 		blocksToUpdate.clear();
 
 		for (BlockVec blockVec : blocksToUpdateThisTick) handleUpdate(instance, blockVec);
-
-		PistonManager.get().handleScheduledMoves(instance);
 	}
 
 	public void handleUpdate(Instance instance, BlockVec blockVec) {

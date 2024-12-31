@@ -2,6 +2,8 @@ package dev.kyriji.missilewars.minecraft.block.slimestone;
 
 import dev.kyriji.missilewars.minecraft.block.slimestone.nms.PistonHandler;
 import dev.kyriji.missilewars.minecraft.block.state.properties.Facing;
+import dev.kyriji.missilewars.minecraft.block.state.properties.PistonExtended;
+import dev.kyriji.missilewars.minecraft.block.state.properties.PistonType;
 import dev.kyriji.missilewars.minecraft.block.update.BlockUpdateHandler;
 import dev.kyriji.missilewars.minecraft.block.util.BlockUtils;
 import net.minestom.server.coordinate.BlockVec;
@@ -10,7 +12,9 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.Direction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PistonManager {
 	private static PistonManager INSTANCE;
@@ -27,11 +31,11 @@ public class PistonManager {
 			if (task.getCreationTick() + 3 == serverTick || task.shouldRunImmediately()) {
 				System.out.println("setting blocks: " + BlockUpdateHandler.lastStoneTick + " " + task.shouldRunImmediately());
 				if (task.isExtending()) {
-					if (task.hasMoveBlocksRunnable()) task.getMoveBlocksRunnable().run();
-					task.getUpdatePistonRunnable().run();
+					task.getMoveBlocksRunnable().run();
+					// task.getUpdatePistonRunnable().run();
 				} else {
-					task.getUpdatePistonRunnable().run();
-					if (task.hasMoveBlocksRunnable()) task.getMoveBlocksRunnable().run();
+					// task.getUpdatePistonRunnable().run();
+					task.getMoveBlocksRunnable().run();
 				}
 				blockMoveTasks.remove(task);
 			}
@@ -77,24 +81,43 @@ public class PistonManager {
 		Direction direction = Facing.fromBlock(pistonBlock).toDirection();
 		// List<BlockVec> pushBlocks = getPushBlocks(instance, pistonVec, direction);
 
+		Facing facing = Facing.fromBlock(pistonBlock);
+		BlockVec headVec = facing.offset(pistonVec);
+		Block head = Block.PISTON_HEAD
+				.withProperty("facing", facing.getValue())
+				.withProperty("type", pistonBlock.defaultState() == Block.PISTON ?
+						PistonType.NORMAL.getValue() : PistonType.STICKY.getValue());
+
 		// pushBlocks = pushBlocks.reversed();
 		// List<BlockVec> finalPushBlocks = pushBlocks;
 		Runnable runnable = () -> {
-
 			List<BlockVec> pushBlocks;
 			PistonHandler pistonHandler = new PistonHandler(instance, pistonVec, direction, true);
 			boolean success = pistonHandler.calculatePush();
+			if (!success) {
+				System.out.println("PUSH FAILED");
+				return;
+			}
 			pushBlocks = pistonHandler.getMovedBlocks().reversed();
 
-			System.out.println("pushing " + pushBlocks.size() + " blocks (" + (success ? "success" : "fail") + ")");
+			System.out.println("pushing " + pushBlocks.size() + " blocks");
 
+			List<Runnable> updates = new ArrayList<>();
 			for (BlockVec pushVec : pushBlocks) {
 				BlockVec nextBlockVec = pushVec.add(new BlockVec(direction.vec()));
 				instance.setBlock(nextBlockVec, instance.getBlock(pushVec));
 				instance.setBlock(pushVec, Block.AIR);
-				BlockUpdateHandler.get().scheduleUpdate(instance, pushVec);
-				BlockUpdateHandler.get().scheduleUpdate(instance, nextBlockVec);
+				updates.add(() -> {
+					BlockUpdateHandler.get().scheduleUpdate(instance, pushVec);
+					BlockUpdateHandler.get().scheduleUpdate(instance, nextBlockVec);
+				});
 			}
+
+			instance.setBlock(pistonVec, pistonBlock.withProperty("extended", PistonExtended.EXTENDED.getValue()));
+			instance.setBlock(headVec, head);
+			BlockUpdateHandler.get().scheduleUpdate(instance, pistonVec);
+			BlockUpdateHandler.get().scheduleUpdate(instance, headVec);
+			for (Runnable update : updates) update.run();
 		};
 
 		getScheduledMove(instance, pistonVec).setMoveBlocksRunnable(runnable);
@@ -103,25 +126,43 @@ public class PistonManager {
 	public void UNSAFE_pull(Instance instance, BlockVec pistonVec) {
 		Block pistonBlock = instance.getBlock(pistonVec);
 		Direction direction = Facing.fromBlock(pistonBlock).toDirection();
+		PistonType pistonType = PistonType.fromBlock(pistonBlock);
 		// List<BlockVec> pullBlocks = getPullBlocks(instance, pistonVec, direction);
-		BlockVec offset = pistonVec.add(new BlockVec(direction.vec().mul(-1)));
+
+		Facing facing = Facing.fromBlock(pistonBlock);
+		BlockVec headVec = facing.offset(pistonVec);
+
+		instance.setBlock(pistonVec, pistonBlock.withProperty("extended", PistonExtended.RETRACTED.getValue()));
+		instance.setBlock(headVec, Block.AIR);
+		BlockUpdateHandler.get().scheduleUpdate(instance, pistonVec);
+		BlockUpdateHandler.get().scheduleUpdate(instance, headVec);
+
+		Map<BlockVec, Block> pullBlocks = new HashMap<>();
+		PistonHandler pistonHandler = new PistonHandler(instance, pistonVec, direction, false);
+		boolean success = pistonHandler.calculatePush();
+		if (!success) {
+			System.out.println("PULL FAILED");
+			return;
+		}
+		for (BlockVec blockVec : pistonHandler.getMovedBlocks().reversed())
+			pullBlocks.put(blockVec, instance.getBlock(blockVec));
+
+		for (Map.Entry<BlockVec, Block> entry : pullBlocks.entrySet()) {
+			instance.setBlock(entry.getKey(), Block.AIR);
+			BlockUpdateHandler.get().scheduleUpdateImmediately(instance, entry.getKey());
+		}
 
 		// pullBlocks = pullBlocks.reversed();
 		// List<BlockVec> finalPullBlocks = pullBlocks;
 		Runnable runnable = () -> {
-			List<BlockVec> pullBlocks;
-			PistonHandler pistonHandler = new PistonHandler(instance, pistonVec, direction, false);
-			boolean success = pistonHandler.calculatePush();
-			pullBlocks = pistonHandler.getMovedBlocks().reversed();
+			if (pistonType == PistonType.STICKY) {
+				System.out.println("pulling " + pullBlocks.size() + " blocks");
 
-			System.out.println("pulling " + pullBlocks.size() + " blocks (" + (success ? "success" : "fail") + ")");
-
-			for (BlockVec pullVec : pullBlocks) {
-				BlockVec nextBlockVec = pullVec.add(new BlockVec(direction.opposite().vec()));
-				instance.setBlock(nextBlockVec, instance.getBlock(pullVec));
-				instance.setBlock(pullVec, Block.AIR);
-				BlockUpdateHandler.get().scheduleUpdate(instance, pullVec);
-				BlockUpdateHandler.get().scheduleUpdate(instance, nextBlockVec);
+				for (Map.Entry<BlockVec, Block> entry : pullBlocks.entrySet()) {
+					BlockVec nextBlockVec = entry.getKey().add(new BlockVec(direction.opposite().vec()));
+					instance.setBlock(nextBlockVec, entry.getValue());
+					BlockUpdateHandler.get().scheduleUpdate(instance, nextBlockVec);
+				}
 			}
 		};
 

@@ -9,15 +9,12 @@ import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BlockUpdateHandler {
 	private static BlockUpdateHandler INSTANCE;
 
-	private static final Map<Instance, Set<BlockVec>> instanceBlockUpdateMap = new HashMap<>();
+	private static final Map<Instance, LinkedHashSet<BlockVec>> instanceBlockUpdateMap = new HashMap<>();
 
 	public static long lastStoneTick = Integer.MAX_VALUE;
 
@@ -40,9 +37,9 @@ public class BlockUpdateHandler {
 	public void tick(Instance instance) {
 		PistonManager.get().handleScheduledMoves(instance);
 
-		instanceBlockUpdateMap.putIfAbsent(instance, new HashSet<>());
+		instanceBlockUpdateMap.putIfAbsent(instance, new LinkedHashSet<>());
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
-		Set<BlockVec> blocksToUpdateThisTick = new HashSet<>(blocksToUpdate);
+		Set<BlockVec> blocksToUpdateThisTick = new LinkedHashSet<>(blocksToUpdate);
 		blocksToUpdate.clear();
 
 		for (BlockVec blockVec : blocksToUpdateThisTick) handleUpdate(instance, blockVec);
@@ -56,10 +53,18 @@ public class BlockUpdateHandler {
 	}
 
 	public void scheduleUpdate(Instance instance, BlockVec blockVec) {
-		instanceBlockUpdateMap.putIfAbsent(instance, new HashSet<>());
+		instanceBlockUpdateMap.putIfAbsent(instance, new LinkedHashSet<>());
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
 		blocksToUpdate.add(blockVec);
 		blocksToUpdate.addAll(BlockUtils.getNeighborBlocks(blockVec));
+		System.out.println(blocksToUpdate);
+	}
+
+	public void scheduleUpdateImmediately(Instance instance, BlockVec blockVec) {
+		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
+		blocksToUpdate.add(blockVec);
+		blocksToUpdate.addAll(BlockUtils.getNeighborBlocks(blockVec));
+		for (BlockVec updateVec : new ArrayList<>(blocksToUpdate)) handleUpdate(instance, updateVec);
 	}
 
 	public static void init() {

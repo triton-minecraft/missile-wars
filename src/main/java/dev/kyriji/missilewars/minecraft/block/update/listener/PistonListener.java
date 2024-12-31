@@ -1,5 +1,6 @@
 package dev.kyriji.missilewars.minecraft.block.update.listener;
 
+import dev.kyriji.missilewars.minecraft.block.slimestone.BlockMoveTask;
 import dev.kyriji.missilewars.minecraft.block.slimestone.PistonManager;
 import dev.kyriji.missilewars.minecraft.block.slimestone.RedstoneManager;
 import dev.kyriji.missilewars.minecraft.block.state.properties.Facing;
@@ -15,6 +16,7 @@ public class PistonListener implements BlockUpdateListener {
 	@Override
 	public void onBlockUpdate(Block block, Instance instance, BlockVec blockVec) {
 		Block defaultBlock = block.defaultState();
+		// System.out.println("updating block: " + block + " at " + instance.getWorldAge());
 		if (defaultBlock == Block.PISTON || defaultBlock == Block.STICKY_PISTON) {
 			checkPowered(instance, blockVec, block);
 
@@ -33,7 +35,7 @@ public class PistonListener implements BlockUpdateListener {
 				System.out.println("something went wrong, deleting sticky piston head");
 			}
 
-			checkPowered(instance, pistonVec, pistonBlock);
+			BlockUpdateHandler.get().scheduleUpdate(instance, pistonVec);
 		}
 	}
 
@@ -50,6 +52,7 @@ public class PistonListener implements BlockUpdateListener {
 	}
 
 	public void extendPiston(Instance instance, BlockVec blockVec) {
+		// System.out.println("extending piston: " + instance.getWorldAge());
 		Block block = instance.getBlock(blockVec);
 		Block defaultBlock = block.defaultState();
 		Facing facing = Facing.fromBlock(block);
@@ -74,6 +77,7 @@ public class PistonListener implements BlockUpdateListener {
 	}
 
 	public void retractPiston(Instance instance, BlockVec blockVec) {
+		// System.out.println("retracting piston: " + instance.getWorldAge());
 		Block block = instance.getBlock(blockVec);
 		Block defaultBlock = block.defaultState();
 		Facing facing = Facing.fromBlock(block);
@@ -90,7 +94,19 @@ public class PistonListener implements BlockUpdateListener {
 			BlockUpdateHandler.get().scheduleUpdate(instance, offset);
 		};
 
+		// code to drop blocks
+		BlockMoveTask task = null;
+		if (defaultBlock == Block.STICKY_PISTON) {
+			task = PistonManager.get().getScheduledMove(instance, blockVec);
+			if (task != null) {
+				task.setMoveBlocksRunnable(null);
+				task.runImmediately();
+			}
+		}
+
 		PistonManager.get().scheduleMove(instance, blockVec, false, runnable);
-		if (defaultBlock == Block.STICKY_PISTON) PistonManager.get().UNSAFE_pull(instance, blockVec);
+		if (defaultBlock == Block.STICKY_PISTON) {
+			if (task == null) PistonManager.get().UNSAFE_pull(instance, blockVec);
+		}
 	}
 }

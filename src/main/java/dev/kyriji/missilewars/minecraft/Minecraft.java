@@ -13,15 +13,15 @@ public class Minecraft {
 	private static Minecraft INSTANCE;
 
 	private Minecraft() {
+		RedstoneManager.init();
+		PistonManager.init();
+		SpecialBlockManager.init();
+
 		BlockUpdateHandler.init();
 		BlockUpdateDetector.init();
 		BlockUpdateManager.init();
 		BlockStateManager.init();
 		BlockPlacementManager.init();
-
-		RedstoneManager.init();
-		PistonManager.init();
-		SpecialBlockManager.init();
 	}
 
 	public static void init() {

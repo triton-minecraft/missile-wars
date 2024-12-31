@@ -8,7 +8,10 @@ import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BlockUpdateHandler {
 	private static BlockUpdateHandler INSTANCE;
@@ -18,16 +21,19 @@ public class BlockUpdateHandler {
 	private BlockUpdateHandler() {
 		MinecraftServer.getGlobalEventHandler().addListener(InstanceTickEvent.class, event -> {
 			Instance instance = event.getInstance();
-			if (instanceBlockUpdateMap.containsKey(instance)) {
-				PistonManager.get().handleScheduledMoves(instance);
-
-				Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
-				Set<BlockVec> blocksToUpdateCopy = new HashSet<>(blocksToUpdate);
-				blocksToUpdate.clear();
-
-				for (BlockVec blockVec : blocksToUpdateCopy) handleUpdate(instance, blockVec);
-			}
+			tick(instance);
 		});
+	}
+
+	public void tick(Instance instance) {
+		instanceBlockUpdateMap.putIfAbsent(instance, new HashSet<>());
+		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
+		Set<BlockVec> blocksToUpdateThisTick = new HashSet<>(blocksToUpdate);
+		blocksToUpdate.clear();
+
+		for (BlockVec blockVec : blocksToUpdateThisTick) handleUpdate(instance, blockVec);
+
+		PistonManager.get().handleScheduledMoves(instance);
 	}
 
 	public void handleUpdate(Instance instance, BlockVec blockVec) {

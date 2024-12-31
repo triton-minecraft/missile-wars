@@ -11,6 +11,7 @@ public class BlockMoveTask {
 	private final long creationTick;
 
 	private Runnable moveBlocksRunnable;
+	private boolean runImmediately = false;
 
 	public BlockMoveTask(Instance instance, BlockVec pistonVec, boolean isExtending, Runnable updatePistonRunnable) {
 		this.instance = instance;
@@ -50,5 +51,13 @@ public class BlockMoveTask {
 
 	public void setMoveBlocksRunnable(Runnable moveBlocksRunnable) {
 		this.moveBlocksRunnable = moveBlocksRunnable;
+	}
+
+	public boolean shouldRunImmediately() {
+		return runImmediately;
+	}
+
+	public void runImmediately() {
+		runImmediately = true;
 	}
 }

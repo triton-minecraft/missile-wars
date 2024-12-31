@@ -23,7 +23,7 @@ public class PistonManager {
 
 		for (BlockMoveTask task : new ArrayList<>(blockMoveTasks)) {
 			if (task.getInstance() != instance) continue;
-			if (task.getCreationTick() + 2 == serverTick) {
+			if (task.getCreationTick() + 2 == serverTick || task.shouldRunImmediately()) {
 				if (task.isExtending()) {
 					if (task.hasMoveBlocksRunnable()) task.getMoveBlocksRunnable().run();
 					task.getUpdatePistonRunnable().run();

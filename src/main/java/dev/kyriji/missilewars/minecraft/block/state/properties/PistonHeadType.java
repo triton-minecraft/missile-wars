@@ -1,8 +1,9 @@
 package dev.kyriji.missilewars.minecraft.block.state.properties;
 
 import dev.kyriji.missilewars.minecraft.block.state.Property;
+import net.minestom.server.instance.block.Block;
 
-public enum PistonType implements Property<PistonType> {
+public enum PistonHeadType implements Property<PistonHeadType> {
 	NORMAL,
 	STICKY,
 	;
@@ -17,7 +18,7 @@ public enum PistonType implements Property<PistonType> {
 		return name().toLowerCase();
 	}
 
-	public static PistonType fromString(String value) {
-		return valueOf(value.toUpperCase());
+	public static PistonHeadType fromBlock(Block block) {
+		return valueOf(block.getProperty("type").toUpperCase());
 	}
 }

@@ -2,7 +2,9 @@ package dev.kyriji.missilewars.minecraft.block.state.properties;
 
 import dev.kyriji.missilewars.minecraft.block.state.Property;
 import net.minestom.server.coordinate.BlockVec;
+import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.block.BlockFace;
+import net.minestom.server.utils.Direction;
 
 public enum Facing implements Property<Facing> {
 	NORTH(0, 0, -1),
@@ -41,6 +43,17 @@ public enum Facing implements Property<Facing> {
 		return blockVec.add(x * multiplier, y * multiplier, z * multiplier);
 	}
 
+	public Direction toDirection() {
+		return switch (this) {
+			case NORTH -> Direction.NORTH;
+			case EAST -> Direction.EAST;
+			case SOUTH -> Direction.SOUTH;
+			case WEST -> Direction.WEST;
+			case UP -> Direction.UP;
+			case DOWN -> Direction.DOWN;
+		};
+	}
+
 	public int getX() {
 		return x;
 	}
@@ -63,8 +76,8 @@ public enum Facing implements Property<Facing> {
 		return name().toLowerCase();
 	}
 
-	public static Facing fromString(String value) {
-		return valueOf(value.toUpperCase());
+	public static Facing fromBlock(Block block) {
+		return valueOf(block.getProperty("facing").toUpperCase());
 	}
 
 	public static Facing fromYawAndPitch(float yaw, float pitch) {

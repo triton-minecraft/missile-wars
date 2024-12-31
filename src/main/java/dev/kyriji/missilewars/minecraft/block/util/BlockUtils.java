@@ -1,18 +1,23 @@
 package dev.kyriji.missilewars.minecraft.block.util;
 
 import net.minestom.server.coordinate.BlockVec;
+import net.minestom.server.utils.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlockUtils {
 	public static List<BlockVec> getNeighborBlocks(BlockVec block) {
-		return List.of(
-			block.add(1, 0, 0),
-			block.add(-1, 0, 0),
-			block.add(0, 1, 0),
-			block.add(0, -1, 0),
-			block.add(0, 0, 1),
-			block.add(0, 0, -1)
-		);
+		return getNeighborBlocksExcluding(block);
+	}
+
+	public static List<BlockVec> getNeighborBlocksExcluding(BlockVec blockVec, Direction... directions) {
+		List<Direction> directionsList = List.of(Direction.values()).stream().filter(direction -> {
+			for (Direction testDirection : directions) if (direction == testDirection) return false;
+			return true;
+		}).toList();
+		List<BlockVec> neighbors = new ArrayList<>();
+		for (Direction direction : directionsList) neighbors.add(blockVec.add(new BlockVec(direction.vec())));
+		return neighbors;
 	}
 }

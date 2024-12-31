@@ -1,6 +1,9 @@
 package dev.kyriji.missilewars.minecraft;
 
 import dev.kyriji.missilewars.minecraft.block.placement.BlockPlacementManager;
+import dev.kyriji.missilewars.minecraft.block.slimestone.SpecialBlockManager;
+import dev.kyriji.missilewars.minecraft.block.slimestone.PistonManager;
+import dev.kyriji.missilewars.minecraft.block.slimestone.RedstoneManager;
 import dev.kyriji.missilewars.minecraft.block.state.BlockStateManager;
 import dev.kyriji.missilewars.minecraft.block.update.BlockUpdateDetector;
 import dev.kyriji.missilewars.minecraft.block.update.BlockUpdateHandler;
@@ -15,6 +18,10 @@ public class Minecraft {
 		BlockUpdateManager.init();
 		BlockStateManager.init();
 		BlockPlacementManager.init();
+
+		RedstoneManager.init();
+		PistonManager.init();
+		SpecialBlockManager.init();
 	}
 
 	public static void init() {

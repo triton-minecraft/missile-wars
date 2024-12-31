@@ -18,13 +18,12 @@ public class BlockUpdateHandler {
 		MinecraftServer.getGlobalEventHandler().addListener(InstanceTickEvent.class, event -> {
 			Instance instance = event.getInstance();
 			if (!instanceBlockUpdateMap.containsKey(instance)) return;
+
 			Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
-			try {
-				for (BlockVec blockVec : blocksToUpdate) handleUpdate(instance, blockVec);
-			} catch (ConcurrentModificationException e) {
-				e.printStackTrace();
-			}
+			Set<BlockVec> blocksToUpdateCopy = new HashSet<>(blocksToUpdate);
 			blocksToUpdate.clear();
+
+			for (BlockVec blockVec : blocksToUpdateCopy) handleUpdate(instance, blockVec);
 		});
 	}
 

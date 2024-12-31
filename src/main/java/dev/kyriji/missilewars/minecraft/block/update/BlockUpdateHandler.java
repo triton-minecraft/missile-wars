@@ -1,5 +1,6 @@
 package dev.kyriji.missilewars.minecraft.block.update;
 
+import dev.kyriji.missilewars.minecraft.block.slimestone.PistonManager;
 import dev.kyriji.missilewars.minecraft.block.util.BlockUtils;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
@@ -17,13 +18,15 @@ public class BlockUpdateHandler {
 	private BlockUpdateHandler() {
 		MinecraftServer.getGlobalEventHandler().addListener(InstanceTickEvent.class, event -> {
 			Instance instance = event.getInstance();
-			if (!instanceBlockUpdateMap.containsKey(instance)) return;
+			if (instanceBlockUpdateMap.containsKey(instance)) {
+				PistonManager.get().handleScheduledMoves(instance);
 
-			Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
-			Set<BlockVec> blocksToUpdateCopy = new HashSet<>(blocksToUpdate);
-			blocksToUpdate.clear();
+				Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
+				Set<BlockVec> blocksToUpdateCopy = new HashSet<>(blocksToUpdate);
+				blocksToUpdate.clear();
 
-			for (BlockVec blockVec : blocksToUpdateCopy) handleUpdate(instance, blockVec);
+				for (BlockVec blockVec : blocksToUpdateCopy) handleUpdate(instance, blockVec);
+			}
 		});
 	}
 

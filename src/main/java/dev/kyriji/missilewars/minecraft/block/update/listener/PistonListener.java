@@ -55,9 +55,6 @@ public class PistonListener implements BlockUpdateListener {
 		Facing facing = Facing.fromBlock(block);
 
 		if (!PistonManager.get().canPush(instance, blockVec)) return;
-		PistonManager.get().UNSAFE_push(instance, blockVec);
-
-		instance.setBlock(blockVec, block.withProperty("extended", PistonExtended.EXTENDED.getValue()));
 
 		BlockVec headVec = facing.offset(blockVec);
 		Block head = Block.PISTON_HEAD
@@ -65,10 +62,15 @@ public class PistonListener implements BlockUpdateListener {
 				.withProperty("type", defaultBlock == Block.PISTON ?
 						PistonHeadType.NORMAL.getValue() : PistonHeadType.STICKY.getValue());
 
-		instance.setBlock(headVec, head);
+		Runnable runnable = () -> {
+			instance.setBlock(blockVec, block.withProperty("extended", PistonExtended.EXTENDED.getValue()));
+			instance.setBlock(headVec, head);
+			BlockUpdateHandler.get().scheduleUpdate(instance, blockVec);
+			BlockUpdateHandler.get().scheduleUpdate(instance, headVec);
+		};
 
-		BlockUpdateHandler.get().scheduleUpdate(instance, blockVec);
-		BlockUpdateHandler.get().scheduleUpdate(instance, headVec);
+		PistonManager.get().scheduleMove(instance, blockVec, true, runnable);
+		PistonManager.get().UNSAFE_push(instance, blockVec);
 	}
 
 	public void retractPiston(Instance instance, BlockVec blockVec) {
@@ -76,12 +78,19 @@ public class PistonListener implements BlockUpdateListener {
 		Block defaultBlock = block.defaultState();
 		Facing facing = Facing.fromBlock(block);
 
-		instance.setBlock(blockVec, block.withProperty("extended", PistonExtended.RETRACTED.getValue()));
+		if (defaultBlock == Block.STICKY_PISTON && !PistonManager.get().canPull(instance, blockVec)) return;
 
 		BlockVec offset = facing.offset(blockVec);
-		instance.setBlock(offset, Block.AIR);
 
-		BlockUpdateHandler.get().scheduleUpdate(instance, blockVec);
-		BlockUpdateHandler.get().scheduleUpdate(instance, offset);
+		Runnable runnable = () -> {
+			instance.setBlock(blockVec, block.withProperty("extended", PistonExtended.RETRACTED.getValue()));
+			instance.setBlock(offset, Block.AIR);
+
+			BlockUpdateHandler.get().scheduleUpdate(instance, blockVec);
+			BlockUpdateHandler.get().scheduleUpdate(instance, offset);
+		};
+
+		PistonManager.get().scheduleMove(instance, blockVec, false, runnable);
+		if (defaultBlock == Block.STICKY_PISTON) PistonManager.get().UNSAFE_pull(instance, blockVec);
 	}
 }

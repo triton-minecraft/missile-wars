@@ -15,7 +15,7 @@ public class PistonListener implements BlockUpdateListener {
 	@Override
 	public void onBlockUpdate(Block block, Instance instance, BlockVec blockVec) {
 		Block defaultBlock = block.defaultState();
-		System.out.println("updating block: " + block + " at " + BlockUpdateHandler.lastStoneTick);
+		// System.out.println("updating block: " + block + " at " + BlockUpdateHandler.lastStoneTick);
 		if (defaultBlock == Block.PISTON || defaultBlock == Block.STICKY_PISTON) {
 			checkPowered(instance, blockVec, block);
 

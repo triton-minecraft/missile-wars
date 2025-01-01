@@ -57,7 +57,7 @@ public class BlockUpdateHandler {
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
 		blocksToUpdate.add(blockVec);
 		blocksToUpdate.addAll(BlockUtils.getNeighborBlocks(blockVec));
-		System.out.println(blocksToUpdate);
+		// System.out.println("blocks to update: " + blocksToUpdate);
 	}
 
 	public void scheduleUpdateImmediately(Instance instance, BlockVec blockVec) {

@@ -1,6 +1,6 @@
 package dev.kyriji.missilewars.minecraft.block.slimestone;
 
-public enum PushType {
+public enum BlockMoveType {
 	PUSH,
-	PULL
+	STICKY
 }

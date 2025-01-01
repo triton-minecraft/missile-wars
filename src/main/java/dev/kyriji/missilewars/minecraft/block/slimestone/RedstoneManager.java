@@ -1,7 +1,7 @@
 package dev.kyriji.missilewars.minecraft.block.slimestone;
 
 import dev.kyriji.missilewars.minecraft.block.state.properties.Facing;
-import dev.kyriji.missilewars.minecraft.block.util.BlockUtils;
+import dev.kyriji.missilewars.minecraft.block.util.BlockUtil;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
@@ -20,9 +20,9 @@ public class RedstoneManager {
 		List<BlockVec> neighbors;
 		if (defaultBlock == Block.PISTON || defaultBlock == Block.STICKY_PISTON) {
 			Facing facing = Facing.fromBlock(block);
-			neighbors = BlockUtils.getNeighborBlocksExcluding(blockVec, facing.toDirection());
+			neighbors = BlockUtil.getNeighborBlocksExcluding(blockVec, facing.toDirection());
 		} else {
-			neighbors = BlockUtils.getNeighborBlocks(blockVec);
+			neighbors = BlockUtil.getNeighborBlocks(blockVec);
 		}
 
 		for (BlockVec neighbor : neighbors) {

@@ -6,7 +6,7 @@ import net.minestom.server.utils.Direction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockUtils {
+public class BlockUtil {
 	public static List<BlockVec> getNeighborBlocks(BlockVec block) {
 		return getNeighborBlocksExcluding(block);
 	}
@@ -17,7 +17,7 @@ public class BlockUtils {
 			return true;
 		}).toList();
 		List<BlockVec> neighbors = new ArrayList<>();
-		for (Direction direction : directionsList) neighbors.add(blockVec.add(new BlockVec(direction.vec())));
+		for (Direction direction : directionsList) neighbors.add(new BlockVec(blockVec).add(new BlockVec(direction.vec())));
 		return neighbors;
 	}
 }

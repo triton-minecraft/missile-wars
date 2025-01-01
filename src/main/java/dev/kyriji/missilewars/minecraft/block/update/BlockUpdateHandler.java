@@ -1,7 +1,8 @@
 package dev.kyriji.missilewars.minecraft.block.update;
 
 import dev.kyriji.missilewars.minecraft.block.slimestone.PistonManager;
-import dev.kyriji.missilewars.minecraft.block.util.BlockUtils;
+import dev.kyriji.missilewars.minecraft.block.util.BlockUtil;
+import dev.kyriji.missilewars.minecraft.block.util.MessageUtil;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.event.instance.InstanceTickEvent;
@@ -21,9 +22,10 @@ public class BlockUpdateHandler {
 	private BlockUpdateHandler() {
 		MinecraftServer.getGlobalEventHandler().addListener(InstanceTickEvent.class, event -> {
 			Instance instance = event.getInstance();
-			if (lastStoneTick < 15) {
+			if (lastStoneTick < 20) {
 				System.out.println("------------------------------");
 				System.out.println("ticking: " + lastStoneTick);
+				MessageUtil.broadcast("ticking: " + lastStoneTick);
 			}
 			tick(instance);
 			lastStoneTick++;
@@ -56,15 +58,17 @@ public class BlockUpdateHandler {
 		instanceBlockUpdateMap.putIfAbsent(instance, new LinkedHashSet<>());
 		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
 		blocksToUpdate.add(blockVec);
-		blocksToUpdate.addAll(BlockUtils.getNeighborBlocks(blockVec));
-		// System.out.println("blocks to update: " + blocksToUpdate);
+		blocksToUpdate.addAll(BlockUtil.getNeighborBlocks(blockVec));
+		System.out.println("scheduling update around: " + blockVec + " " + instance.getBlock(blockVec));
 	}
 
 	public void scheduleUpdateImmediately(Instance instance, BlockVec blockVec) {
-		Set<BlockVec> blocksToUpdate = instanceBlockUpdateMap.get(instance);
+		Set<BlockVec> blocksToUpdate = new LinkedHashSet<>();
 		blocksToUpdate.add(blockVec);
-		blocksToUpdate.addAll(BlockUtils.getNeighborBlocks(blockVec));
+		blocksToUpdate.addAll(BlockUtil.getNeighborBlocks(blockVec));
+		System.out.println("immediately scheduling update around: " + blockVec + " " + instance.getBlock(blockVec));
 		for (BlockVec updateVec : new ArrayList<>(blocksToUpdate)) handleUpdate(instance, updateVec);
+		System.out.println("immediate update finished");
 	}
 
 	public static void init() {

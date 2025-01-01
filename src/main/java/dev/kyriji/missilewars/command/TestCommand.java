@@ -1,7 +1,9 @@
 package dev.kyriji.missilewars.command;
 
 import dev.kyriji.missilewars.MissileWars;
+import dev.kyriji.missilewars.minecraft.block.slimestone.PistonManager;
 import net.minestom.server.command.builder.Command;
+import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 import net.minestom.server.entity.Player;
@@ -25,6 +27,8 @@ public class TestCommand extends Command {
 			// 	player.sendMessage("saving the world: " + instance.getUniqueId());
 			// 	instance.saveChunksToStorage();
 			// });
+
+			defaultImplementation(player, context);
 		});
 
 		ArgumentInteger numberArgument = ArgumentType.Integer("number");
@@ -38,5 +42,10 @@ public class TestCommand extends Command {
 		// 	int number = context.get(numberArgument);
 		// 	MissileWars.world.getInstance().setTimeRate(number);
 		// }, numberArgument);
+	}
+
+	public void defaultImplementation(Player player, CommandContext context) {
+		System.out.println(PistonManager.get().scheduledExtensions);
+		System.out.println(PistonManager.get().blockMoveTasks);
 	}
 }

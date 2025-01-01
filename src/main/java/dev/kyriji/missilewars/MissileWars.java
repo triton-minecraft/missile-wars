@@ -19,7 +19,7 @@ public class MissileWars {
 	public static TritonWorld world2;
 
 	public static void main(String[] args) {
-		System.setProperty("minestom.tps", "5");
+		// System.setProperty("minestom.tps", "5");
 		MinecraftServer server = MinecraftServer.init();
 
 		world = WorldManager.get().buildWorld("world")
